@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact name="TCQ_LCQ:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/TCQ_LCQ_jar</output-path>
+    <root id="root">
+      <element id="archive" name="TCQ_LCQ.jar">
+        <element id="module-output" name="graduationProject" />
+      </element>
+    </root>
+  </artifact>
+</component>
