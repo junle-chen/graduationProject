@@ -36,21 +36,22 @@ public class Main {
     static int[] months = {Calendar.FEBRUARY, Calendar.MARCH};
 
     //隐私预算
-    static double[] epsilon = {1,2,4,6,8,10,12};
+    static double[] epsilons = {1,2,4,6,8,10,12};
 
     public static void main(String[] args) throws FileNotFoundException, ParseException {
 
         Path currentDir = Paths.get(System.getProperty("user.dir"));
 
-        if (args.length != 6) {
-            System.out.println("Usage: java Main <dataSetIndex> <q_theta> <crackBound> <algo_index> <last_time> <select_query>");
+        if (args.length != 7) {
+            System.out.println("Usage: java Main <dataSetIndex> <q_theta> <crackBound> <algo_index> <last_time> <select_query> <epsilon>");
             System.out.println("dataSetIndex: 0. divvy-tripdata 1. capitalbikeshare-tripdata 2. chicago_taxi_trip_mouth1");
             System.out.println("q_theta: 800,1000,1200,1400,1600,1800,2000");
             System.out.println("crackBound: 500,1000,1500,2000,2500,3000,3500");
             System.out.println("algo_index: 0. linear scan(LCQ_TCQ) 1. linear scan(LCQ) 2. linear scan(TCQ) 3. LCQ_TCQ 4. LCQ 5. TCQ 6. LCQ_M 7. TCQ_M 8.LCQ_TCQ_M");
             System.out.println("time_algo_index: 0. TCQ(LS) 1. TCQ 2. TCQ(M) 3. LCQ(LS) 4. LCQ 5. LCQ(M) 6. LCQ_TCQ(LS) 7. LCQ_TCQ 8. LCQ_TCQ(M)");
-            System.out.println("last_time: 4h, 8h, 12h, 16h, 20h 24h 28h");
-            System.out.println("select: 0. basic query 1. time-constraint query");
+            System.out.println("last_time: 4h, 8h, 12h, 16h, 20h 24h 28h | 0 if not select time-constraint query");
+            System.out.println("select: 0. basic query 1. time-constraint query 2.differential privacy");
+            System.out.println("epsilon: 1,2,4,6,8,10,12 | 0 if not select differential privacy");
             //0.TTCQ_linear_scan 1.TTCQ_ATtree 2.TTCQ_M_ATtree
             // 3. TLCQ_linear_scan 4. TLCQ_ATtree 5. TLCQ_M_ATtree
             // 6. T_LCQ_TCQ_linear_scan 7. TLCQ_TCQ_ATtree 8.TLCQ_TCQ_M_ATtree
@@ -63,8 +64,10 @@ public class Main {
         algo_index = Integer.parseInt(args[3]);
         int lastTime = lastTimes[Integer.parseInt(args[4])];
         int select = Integer.parseInt(args[5]);
+        double epsilon = epsilons[Integer.parseInt(args[6])];
 
-        System.out.println("dataSet: "+dataSetPath+" theta: "+q_theta+" crackBound: "+crackBound+" algo_index: "+algo_index+" lastTime: "+lastTime+" select: "+select);
+        System.out.println("dataSet: "+dataSetPath+" theta: "+q_theta+" crackBound: "+crackBound+" algo_index: "+
+                algo_index+" lastTime: "+lastTime+" select: "+select + "epsilon: "+epsilon);
 
         String filePath = currentDir.resolve(dataSetPath).toString();
         DataProcess dp = new DataProcess(filePath);
@@ -84,7 +87,7 @@ public class Main {
         TreeNode root1 = new TreeNode(null, 0, transitions.length - 1);
         double baseLan = transitions[0].getStart().getLatitude();
         double baseLon = transitions[0].getStart().getLongitude();
-        Transition[] transitions1 = addNoise(transitions, 2, q_theta, baseLan,baseLon,"laplace");
+        Transition[] transitions1 = addNoise(transitions, epsilon, q_theta, baseLan,baseLon,"laplace");
         Set<Transition> Rt1 = new HashSet<>();
         Set<Transition> Rl1 = new HashSet<>();
         Algorithm.LCQ_TCQ_Search(transitions1, qq, q_theta,root1, Rt1,Rl1);
@@ -104,7 +107,30 @@ public class Main {
 //        }
 
     }
-    
+    public static void diffPrivacyATTree(int start, int query_num, Transition[] transitions, int algo_index,
+                                         double q_theta, TreeNode root,double epsilon){
+
+        Set<Transition> Rt = new HashSet<>();
+        Set<Transition> Rl = new HashSet<>();
+        //generate a random transition
+        Random random = new Random(0);
+        int randomIndex = random.nextInt(transitions.length);
+        System.out.println("the query transition's id is "+randomIndex);
+        Transition qq = transitions[randomIndex];
+        Algorithm.LCQ_TCQ_Search(transitions, qq, q_theta,root, Rt,Rl);
+        TreeNode root1 = new TreeNode(null, 0, transitions.length - 1);
+        double baseLan = transitions[0].getStart().getLatitude();
+        double baseLon = transitions[0].getStart().getLongitude();
+        Transition[] transitions1 = addNoise(transitions, epsilon, q_theta, baseLan,baseLon,"laplace");
+        Set<Transition> Rt1 = new HashSet<>();
+        Set<Transition> Rl1 = new HashSet<>();
+        Algorithm.LCQ_TCQ_Search(transitions1, qq, q_theta,root1, Rt1,Rl1);
+        System.out.println("Rl size: "+Rl.size()+" Rt size: "+Rt.size());
+        System.out.println("Rl1 size: "+Rl1.size()+" Rt1 size: "+Rt1.size());
+        System.out.println("Intersection between Rl1 and Rl is "+calculateIntersection(Rl,Rl1));
+        System.out.println("Intersection between Rt1 and Rt is "+calculateIntersection(Rt,Rt1));
+
+    }
 
 
     public static void TestTimeATtree(int start, int query_num, Transition[] transitions, int choice,
