@@ -40,7 +40,7 @@ public class DataProcess {
             int startedAtIndex = findColumnIndex(headers, "started_at");
             int endedAtIndex = findColumnIndex(headers, "ended_at");
 //            int tripIndex = findColumnIndex(headers,"Trip ID");
-            int tripId = 1;
+            int tripId = 0;
             while ((line = br.readLine()) != null) {
                 try {
                     String[] data = line.split(",");
@@ -49,6 +49,8 @@ public class DataProcess {
                         double pickupLon = Double.parseDouble(data[pickupLonIndex].trim());
                         double dropoffLat = Double.parseDouble(data[dropoffLatIndex].trim());
                         double dropoffLon = Double.parseDouble(data[dropoffLonIndex].trim());
+                        //add dp
+
                         Date startedAt = dateFormat.parse(data[startedAtIndex].trim());
                         Date endedAt = dateFormat.parse(data[endedAtIndex].trim());
                         Point start = new Point(pickupLat, pickupLon);

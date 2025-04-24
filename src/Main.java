@@ -1,6 +1,6 @@
 import ATtree.TreeNode;
-import edu.princeton.cs.algs4.In;
 import objects.Operations;
+import objects.Point;
 import objects.Transition;
 
 import java.io.FileNotFoundException;
@@ -34,6 +34,9 @@ public class Main {
 
     static int[] lastTimes = {4,8,12,16,20,24,28};
     static int[] months = {Calendar.FEBRUARY, Calendar.MARCH};
+
+    //隐私预算
+    static double[] epsilon = {1,2,4,6,8,10,12};
 
     public static void main(String[] args) throws FileNotFoundException, ParseException {
 
@@ -74,16 +77,35 @@ public class Main {
         int start = 5;
         int month = months[Integer.parseInt(args[0])];
 
+        Transition qq = transitions[5];
+        Set<Transition> Rt = new HashSet<>();
+        Set<Transition> Rl = new HashSet<>();
+        Algorithm.LCQ_TCQ_Search(transitions, qq, q_theta,root, Rt,Rl);
+        TreeNode root1 = new TreeNode(null, 0, transitions.length - 1);
+        double baseLan = transitions[0].getStart().getLatitude();
+        double baseLon = transitions[0].getStart().getLongitude();
+        Transition[] transitions1 = addNoise(transitions, 2, q_theta, baseLan,baseLon,"laplace");
+        Set<Transition> Rt1 = new HashSet<>();
+        Set<Transition> Rl1 = new HashSet<>();
+        Algorithm.LCQ_TCQ_Search(transitions1, qq, q_theta,root1, Rt1,Rl1);
+        System.out.println("Rl size: "+Rl.size()+" Rt size: "+Rt.size());
+        System.out.println("Rl1 size: "+Rl1.size()+" Rt1 size: "+Rt1.size());
+        System.out.println("Intersection between Rl1 and Rl is "+calculateIntersection(Rl,Rl1));
+        System.out.println("Intersection between Rt1 and Rt is "+calculateIntersection(Rt,Rt1));
 
-        if (select == 0) {
-            //basic query
-            TestATtree(start, query_num, transitions, algo_index, q_theta, root);
-        }
-        else {
-            TestTimeATtree(start,query_num,transitions,algo_index,q_theta,root,lastTime,month);
-        }
+//
+//        if (select == 0) {
+//            //basic query
+//            TestATtree(start, query_num, transitions, algo_index, q_theta, root);
+//        }
+//        else {
+//
+//            TestTimeATtree(start,query_num,transitions,algo_index,q_theta,root,lastTime,month);
+//        }
 
     }
+    
+
 
     public static void TestTimeATtree(int start, int query_num, Transition[] transitions, int choice,
                                double q_theta, TreeNode root, int lastTime, int month) {
@@ -312,5 +334,51 @@ public class Main {
 
     }
 
+    /**
+     * 为给定的 Transition 数组添加差分隐私噪声。
+     *
+     * @param transitions 原始的 Transition 数组
+     * @param epsilon     隐私预算
+     * @param theta       敏感度，用于计算扰动
+     * @param baselan     基准纬度，用于计算敏感度
+     * @param baselon     基准经度，用于计算敏感度
+     * @param noiseType   噪声类型，可选 "laplace" 或 "gaussian"
+     * @return 添加噪声后的 Transition 数组
+     */
 
+
+    public static Transition[] addNoise(Transition[] transitions, double epsilon, double theta, double baselan,
+                                        double baselon, String noiseType) {
+        Transition[] transitionsWithNoise = new Transition[transitions.length];
+        epsilon = epsilon / 2; //分配给起点和终点
+        for (int i = 0; i < transitions.length; i++) {
+            Point start = transitions[i].getStart();
+            Point end = transitions[i].getEnd();
+            //分配隐私预算
+
+            Point perturbedStart = start.perturbWithSensitivity(theta, epsilon, baselan,baselon,noiseType);
+            Point perturbedEnd = end.perturbWithSensitivity(theta, epsilon,baselan,baselon,noiseType);
+            transitionsWithNoise[i] = new Transition(perturbedStart, perturbedEnd, transitions[i].getId());
+        }
+        return transitionsWithNoise;
+
+    }
+
+    public static double calculateIntersection(Set<Transition> t1, Set<Transition> t2) {
+        Set<Integer> t1Ids = new HashSet<>();
+        Set<Integer> t2Ids = new HashSet<>();
+        for (Transition t: t1) {
+            t1Ids.add(t.getId());
+        }
+        for (Transition t: t2) {
+            t2Ids.add(t.getId());
+        }
+        Set<Integer> intersection = new HashSet<>();
+        for (int tid: t1Ids) {
+            if (t2Ids.contains(tid)) {
+                intersection.add(tid);
+            }
+        }
+        return (double) intersection.size() / t1Ids.size();
+    }
 }

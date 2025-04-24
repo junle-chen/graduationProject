@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>   <!--  使用默认 GroupId: com.example  -->
+    <artifactId>trajectory-privacy</artifactId>  <!--  使用项目名: trajectory-privacy  -->
+    <version>1.0-SNAPSHOT</version>    <!--  项目版本号: 1.0-SNAPSHOT  -->
+    <packaging>jar</packaging>         <!--  打包类型: jar  -->
+
+    <repositories>
+        <repository>
+            <id>osgeo</id>
+            <url>https://repo.osgeo.org/repository/release/</url>
+        </repository>
+    </repositories>
+
+
+    <properties>
+        <maven.compiler.source>20</maven.compiler.source>  <!--  Java 源代码版本: 20 (根据你提供的 JDK 20) -->
+        <maven.compiler.target>20</maven.compiler.target>  <!--  Java 目标版本: 20 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> <!--  项目编码: UTF-8  -->
+        <geoapi.version>3.0.1</geoapi.version>         <!--  OpenGIS GeoAPI 版本号 (定义为 Maven 属性) -->
+        <slf4j.version>2.0.9</slf4j.version>           <!--  SLF4J 版本号 (定义为 Maven 属性) -->
+        <geotools.version>32.0</geotools.version>
+    </properties>
+
+    <dependencies>
+
+
+
+        <!-- OpenGIS GeoAPI -->
+        <dependency>
+            <groupId>org.opengis</groupId>
+            <artifactId>geoapi</artifactId>
+            <version>${geoapi.version}</version>      <!--  使用 Maven 属性引用 OpenGIS GeoAPI 版本号 -->
+        </dependency>
+
+
+        <!-- SLF4J Simple 日志绑定 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>        <!--  使用 Maven 属性引用 SLF4J 版本号 -->
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Maven Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
