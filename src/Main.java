@@ -73,28 +73,29 @@ public class Main {
         DataProcess dp = new DataProcess(filePath);
 
         Transition[] transitions = dp.readData();
-//        Transition[] transitions1 = dp.readData();
+
 //        Set<Transition> transitionSet = new HashSet<>(Arrays.asList(transitions));
 
         TreeNode root = new TreeNode(null, 0, transitions.length - 1);
         int start = 5;
         int month = months[Integer.parseInt(args[0])];
 
-        Transition qq = transitions[5];
-        Set<Transition> Rt = new HashSet<>();
-        Set<Transition> Rl = new HashSet<>();
-        Algorithm.LCQ_TCQ_Search(transitions, qq, q_theta,root, Rt,Rl);
-        TreeNode root1 = new TreeNode(null, 0, transitions.length - 1);
-        double baseLan = transitions[0].getStart().getLatitude();
-        double baseLon = transitions[0].getStart().getLongitude();
-        Transition[] transitions1 = addNoise(transitions, epsilon, q_theta, baseLan,baseLon,"laplace");
-        Set<Transition> Rt1 = new HashSet<>();
-        Set<Transition> Rl1 = new HashSet<>();
-        Algorithm.LCQ_TCQ_Search(transitions1, qq, q_theta,root1, Rt1,Rl1);
-        System.out.println("Rl size: "+Rl.size()+" Rt size: "+Rt.size());
-        System.out.println("Rl1 size: "+Rl1.size()+" Rt1 size: "+Rt1.size());
-        System.out.println("Intersection between Rl1 and Rl is "+calculateIntersection(Rl,Rl1));
-        System.out.println("Intersection between Rt1 and Rt is "+calculateIntersection(Rt,Rt1));
+//        Transition qq = transitions[5];
+//        Set<Transition> Rt = new HashSet<>();
+//        Set<Transition> Rl = new HashSet<>();
+//        Algorithm.LCQ_TCQ_Search(transitions, qq, q_theta,root, Rt,Rl);
+//        TreeNode root1 = new TreeNode(null, 0, transitions.length - 1);
+//        double baseLan = transitions[0].getStart().getLatitude();
+//        double baseLon = transitions[0].getStart().getLongitude();
+//        Transition[] transitions1 = addNoise(transitions, epsilon, q_theta, baseLan,baseLon,"laplace");
+//        Set<Transition> Rt1 = new HashSet<>();
+//        Set<Transition> Rl1 = new HashSet<>();
+//        Algorithm.LCQ_TCQ_Search(transitions1, qq, q_theta,root1, Rt1,Rl1);
+//        System.out.println("Rl size: "+Rl.size()+" Rt size: "+Rt.size());
+//        System.out.println("Rl1 size: "+Rl1.size()+" Rt1 size: "+Rt1.size());
+//        System.out.println("Intersection between Rl1 and Rl is "+calculateIntersection(Rl,Rl1));
+//        System.out.println("Intersection between Rt1 and Rt is "+calculateIntersection(Rt,Rt1));
+        diffPrivacyATTree(start, query_num, transitions, q_theta, root, epsilon);
 
 //
 //        if (select == 0) {
@@ -107,28 +108,41 @@ public class Main {
 //        }
 
     }
-    public static void diffPrivacyATTree(int start, int query_num, Transition[] transitions, int algo_index,
+    public static void diffPrivacyATTree(int start, int query_num, Transition[] transitions,
                                          double q_theta, TreeNode root,double epsilon){
 
-        Set<Transition> Rt = new HashSet<>();
-        Set<Transition> Rl = new HashSet<>();
+
         //generate a random transition
         Random random = new Random(0);
         int randomIndex = random.nextInt(transitions.length);
         System.out.println("the query transition's id is "+randomIndex);
-        Transition qq = transitions[randomIndex];
-        Algorithm.LCQ_TCQ_Search(transitions, qq, q_theta,root, Rt,Rl);
-        TreeNode root1 = new TreeNode(null, 0, transitions.length - 1);
-        double baseLan = transitions[0].getStart().getLatitude();
-        double baseLon = transitions[0].getStart().getLongitude();
-        Transition[] transitions1 = addNoise(transitions, epsilon, q_theta, baseLan,baseLon,"laplace");
-        Set<Transition> Rt1 = new HashSet<>();
-        Set<Transition> Rl1 = new HashSet<>();
-        Algorithm.LCQ_TCQ_Search(transitions1, qq, q_theta,root1, Rt1,Rl1);
-        System.out.println("Rl size: "+Rl.size()+" Rt size: "+Rt.size());
-        System.out.println("Rl1 size: "+Rl1.size()+" Rt1 size: "+Rt1.size());
-        System.out.println("Intersection between Rl1 and Rl is "+calculateIntersection(Rl,Rl1));
-        System.out.println("Intersection between Rt1 and Rt is "+calculateIntersection(Rt,Rt1));
+        Transition qq;
+        double sum_t = 0;
+        double sum_l = 0;
+        for (int i = start; i < query_num; i++) {
+            qq = transitions[i];
+            Set<Transition> Rt = new HashSet<>();
+            Set<Transition> Rl = new HashSet<>();
+            Algorithm.LCQ_TCQ_Search(transitions, qq, q_theta,root, Rt,Rl);
+            TreeNode root1 = new TreeNode(null, 0, transitions.length - 1);
+            double baseLan = transitions[0].getStart().getLatitude();
+            double baseLon = transitions[0].getStart().getLongitude();
+            Transition[] transitions1 = addNoise(transitions, epsilon, q_theta, baseLan,baseLon,"laplace");
+            Set<Transition> Rt1 = new HashSet<>();
+            Set<Transition> Rl1 = new HashSet<>();
+            Algorithm.LCQ_TCQ_Search(transitions1, qq, q_theta,root1, Rt1,Rl1);
+            System.out.println("Rl size: "+Rl.size()+" Rt size: "+Rt.size());
+            System.out.println("Rl1 size: "+Rl1.size()+" Rt1 size: "+Rt1.size());
+            double intersection_l = calculateIntersection(Rl,Rl1);
+            double intersection_t = calculateIntersection(Rt,Rt1);
+            sum_t += intersection_t;
+            sum_l += intersection_l;
+            System.out.println("Intersection between Rl1 and Rl is "+ intersection_l);
+            System.out.println("Intersection between Rt1 and Rt is "+ intersection_t);
+        }
+        System.out.println("average intersection between Rl1 and Rl is "+ sum_l/query_num);
+        System.out.println("average intersection between Rt1 and Rt is "+ sum_t/query_num);
+
 
     }
 
