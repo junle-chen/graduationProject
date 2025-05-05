@@ -15,6 +15,12 @@
 
 使用`idea`打开项目运行Main即可，环境为jdk20
 
+```shell
+Usage: java Main <dataSetIndex> <q_theta> <crackBound> <algo_index> <last_time> <select_query> <epsilon>
+```
+
+
+
 
 
 ### 文件结构
