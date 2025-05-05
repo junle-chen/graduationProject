@@ -94,7 +94,7 @@ public class Point {
 
 
         if (noiseType == null || noiseType.equalsIgnoreCase("laplace")) {
-            // 拉普拉斯噪声
+            // 拉普拉斯噪声，将隐私预算分配给经纬度
             perturbedLatitude += laplaceNoise(sensitivityLatitude, epsilon/2);
             perturbedLongitude += laplaceNoise(sensitivityLongitude, epsilon/2);
         } else if (noiseType.equalsIgnoreCase("gaussian")) {
