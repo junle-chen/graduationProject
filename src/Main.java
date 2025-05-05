@@ -74,38 +74,23 @@ public class Main {
 
         Transition[] transitions = dp.readData();
 
-//        Set<Transition> transitionSet = new HashSet<>(Arrays.asList(transitions));
 
         TreeNode root = new TreeNode(null, 0, transitions.length - 1);
         int start = 5;
         int month = months[Integer.parseInt(args[0])];
 
-//        Transition qq = transitions[5];
-//        Set<Transition> Rt = new HashSet<>();
-//        Set<Transition> Rl = new HashSet<>();
-//        Algorithm.LCQ_TCQ_Search(transitions, qq, q_theta,root, Rt,Rl);
-//        TreeNode root1 = new TreeNode(null, 0, transitions.length - 1);
-//        double baseLan = transitions[0].getStart().getLatitude();
-//        double baseLon = transitions[0].getStart().getLongitude();
-//        Transition[] transitions1 = addNoise(transitions, epsilon, q_theta, baseLan,baseLon,"laplace");
-//        Set<Transition> Rt1 = new HashSet<>();
-//        Set<Transition> Rl1 = new HashSet<>();
-//        Algorithm.LCQ_TCQ_Search(transitions1, qq, q_theta,root1, Rt1,Rl1);
-//        System.out.println("Rl size: "+Rl.size()+" Rt size: "+Rt.size());
-//        System.out.println("Rl1 size: "+Rl1.size()+" Rt1 size: "+Rt1.size());
-//        System.out.println("Intersection between Rl1 and Rl is "+calculateIntersection(Rl,Rl1));
-//        System.out.println("Intersection between Rt1 and Rt is "+calculateIntersection(Rt,Rt1));
-        diffPrivacyATTree(start, query_num, transitions, q_theta, root, epsilon);
 
-//
-//        if (select == 0) {
-//            //basic query
-//            TestATtree(start, query_num, transitions, algo_index, q_theta, root);
-//        }
-//        else {
-//
-//            TestTimeATtree(start,query_num,transitions,algo_index,q_theta,root,lastTime,month);
-//        }
+        if (select == 0) {
+            //basic query
+            TestATtree(start, query_num, transitions, algo_index, q_theta, root);
+        }
+        else if (select == 1){
+
+            TestTimeATtree(start,query_num,transitions,algo_index,q_theta,root,lastTime,month);
+        }
+        else {
+            diffPrivacyATTree(start, query_num, transitions, q_theta, root, epsilon);
+        }
 
     }
     public static void diffPrivacyATTree(int start, int query_num, Transition[] transitions,
@@ -119,7 +104,7 @@ public class Main {
         Transition qq;
         double sum_t = 0;
         double sum_l = 0;
-        for (int i = start; i < query_num; i++) {
+        for (int i = start; i < start+query_num; i++) {
             qq = transitions[i];
             Set<Transition> Rt = new HashSet<>();
             Set<Transition> Rl = new HashSet<>();
